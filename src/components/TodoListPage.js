@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-    Box,
     Button,
     Flex,
     Heading,
@@ -17,6 +16,7 @@ import {
     Text,
   } from '@chakra-ui/react';
   import { ChevronDownIcon } from '@chakra-ui/icons';
+  import { useNavigate } from 'react-router-dom';
 
 
 const TodoListPage = () => {
@@ -24,6 +24,12 @@ const TodoListPage = () => {
     const [todos, setTodos] = useState([]);
     const [addElement, setAddElement] = useState('');
     const [user, setUser] = useState(null);
+    const navigate = useNavigate();
+    
+    
+    const navigateTo = (path) => {
+       navigate(path);
+    };
     
     useEffect(() => {
         const fetchUser = async () => {
@@ -88,6 +94,7 @@ const TodoListPage = () => {
             console.error(err.message);
         }
     };
+   
 
     return (
         <VStack spacing={4} align="stretch" p={5}>
@@ -98,10 +105,9 @@ const TodoListPage = () => {
                         {user ? user.first_name : "User"}
                     </MenuButton>
                     <MenuList>
-                        {/* Add MenuItems here if needed */}
-                        <MenuItem>Edit</MenuItem>
-                        <MenuItem>Delete</MenuItem>
-                        <MenuItem>Other Users</MenuItem>
+                {/* Use onClick to handle navigation */}
+                        <MenuItem onClick={() => navigateTo(`/user/${user_id}`)}>Edit/Delete</MenuItem>
+                        <MenuItem onClick={() => navigateTo("/users")}>Other Users</MenuItem>
                     </MenuList>
                 </Menu>
             </Flex>
@@ -131,9 +137,11 @@ const TodoListPage = () => {
                 {todos.map((todo, index) => (
                     <ListItem key={index} d="flex" alignItems="center">
                          <Text>{todo.title} 
-                         <Checkbox isChecked={todo.completed} mr={2} />
-                         </Text>
+                         <Checkbox isChecked={todo.completed} mr={4} />
+                         <Button colorScheme="blue" type="submit" size='xs' mr={4}>Edit</Button>
+                        <Button colorScheme="red" type="submit" size='xs' mr={4}>Delete</Button>
                     
+                        </Text>
                     </ListItem>
                 ))}
             </List>
