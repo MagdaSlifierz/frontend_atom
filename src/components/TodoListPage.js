@@ -20,7 +20,7 @@ import {
 
 
 const TodoListPage = () => {
-    const { user_id } = useParams();
+    const { user_id , todo_id} = useParams();
     const [todos, setTodos] = useState([]);
     const [addElement, setAddElement] = useState('');
     const [user, setUser] = useState(null);
@@ -138,8 +138,8 @@ const TodoListPage = () => {
                     <ListItem key={index} d="flex" alignItems="center">
                          <Text>{todo.title} 
                          <Checkbox isChecked={todo.completed} mr={4} />
-                         <Button colorScheme="blue" type="submit" size='xs' mr={4}>Edit</Button>
-                        <Button colorScheme="red" type="submit" size='xs' mr={4}>Delete</Button>
+                         <Button colorScheme="blue" type="submit" size='xs' mr={4} onClick={()=> navigateTo(`user/${user_id}/todos/${todo_id}`)}>Edit</Button>
+                        <Button colorScheme="red" type="submit" size='xs' mr={4} onClick={() => navigate(`user/${user_id}/todos/${todo_id}`)}>Delete</Button>
                     
                         </Text>
                     </ListItem>

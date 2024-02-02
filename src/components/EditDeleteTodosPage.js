@@ -9,42 +9,47 @@ import {
     FormLabel,
     VStack,
     Alert,
-    AlertIcon, 
-
+    AlertIcon,  Checkbox
+ 
   } from '@chakra-ui/react';
   
 
-const EditDeleteUserPage = () => {
+const EditDeleteTodosPage = () => {
     
     const {user_id }  = useParams();
-    const [user, setUser] = useState({"first_name": "", "last_name" : "", "email": ""});
+    const {todo_id} = useParams();
+    const [todos, setTodos] = useState({"title": "", "completed" : false});
     const [message, setMessage] = useState(null); // New state for the message
     const [status, setStatus] = useState('info'); // New state for status of the message (info, error, success)
 
     const navigate = useNavigate();
   
     const handleChange = (e) => {
-        setUser({ ...user, [e.target.name]: e.target.value });
+        if (e.target.name === "completed"){
+            setTodos({ ...todos, completed: e.target.checked });
+        }
+        else {
+            setTodos({...todos, [e.target.name]: e.target.value });
+        }
+       
     };
     
-    const editUser = async (e) => {
+    const editTodos = async (e) => {
         e.preventDefault();
         try{
-            const response = await fetch(`http://localhost:8000/api/v1/users/${user_id}`, {
+            const response = await fetch(`http://localhost:8000/api/v1/users/${user_id}/todos/${todo_id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(user)
+                body: JSON.stringify(todos)
             });
-            navigate((`/user/${user_id}`));
             
             if (response.ok) {
-                const data = await response.json();
-                setMessage("Your user was successfully updated.");
+                setMessage("Your todo item was successfully updated.");
                 setStatus('success');
-                navigate(`/user/${user_id}`);
+                navigate(`/user/${user_id}/todos`);
               } else {
-                console.error('Failed to update user');
-                setMessage("Failed to update user.");
+                console.error('Failed to update todo item');
+                setMessage("Failed to update todo item.");
                 setStatus('error');
               }
             
@@ -56,21 +61,20 @@ const EditDeleteUserPage = () => {
         }
     };
 
-    const deleteUser = async (e) => {
+    const deleteTodos = async (e) => {
         try{
-            const response = await fetch(`http://localhost:8000/api/v1/users/${user_id}`, {
+            const response = await fetch(`http://localhost:8000/api/v1/users/${user_id}/todos/${todo_id}`, {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json"},
             });
-            navigate((`/user/${user_id}`));
             
             if (response.ok) {
-                setMessage("Your user was successfully deleted.");
+                setMessage("Your todo item was successfully deleted.");
                 setStatus('success');
-                navigate("/create-user");
+                navigate(`/user/${user_id}/todos`);
               } else {
-                console.error('Failed to delete user');
-                setMessage("Failed to delete user.");
+                console.error('Failed to delete todo item');
+                setMessage("Failed to delete todo item.");
                 setStatus('error');
               }
             
@@ -86,15 +90,15 @@ const EditDeleteUserPage = () => {
     
     const handleDeleteClick = (e) => {
         e.preventDefault(); // Prevent form submission if it's within a form
-        const isConfirmed = window.confirm('Are you sure you want to delete this user?');
+        const isConfirmed = window.confirm('Are you sure you want to delete this todo item?');
         if (isConfirmed) {
-            deleteUser();
+            deleteTodos();
         }
     };
 
     
     return (
-        <form onSubmit={editUser}>
+        <form onSubmit={editTodos}>
     
       <Flex
         as="nav"
@@ -107,43 +111,28 @@ const EditDeleteUserPage = () => {
       >
 
         <VStack spacing={4} width="100%" maxWidth="400px"> 
-        <Heading size="lg" mb={6}> Edit User for Todo's List</Heading>
+        <Heading size="lg" mb={6}> Edit Todo Item</Heading>
         {message && ( 
             <Alert status={status}>
               <AlertIcon />
               {message}
             </Alert> )}
-          <FormControl id="first_name">
-            <FormLabel>First Name</FormLabel>
+
+          <FormControl id="title">
+            <FormLabel>Todo Name</FormLabel>
             <Input
               type="text"
-              name="first_name"
-              placeholder="First name"
-              value={user.first_name}
+              name="title"
+              placeholder="Todo Name"
+              value={todos.title}
               onChange={handleChange}
             />
           </FormControl>
 
-          <FormControl id="last_name">
-            <FormLabel>Last Name</FormLabel>
-            <Input
-              type="text"
-              name="last_name"
-              placeholder="Last name"
-              value={user.last_name}
-              onChange={handleChange}
-            />
-          </FormControl>
-
-          <FormControl id="email">
-            <FormLabel>Email</FormLabel>
-            <Input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={user.email}
-              onChange={handleChange}
-            />
+          <FormControl id="completed">
+            <FormLabel>Completed</FormLabel>
+            <Checkbox isChecked={todos.completed}
+              onChange={handleChange} mr={4} />
           </FormControl>
 
           {/* Other input fields */}
@@ -161,4 +150,4 @@ const EditDeleteUserPage = () => {
     );
 };
 
-export default EditDeleteUserPage;
+export default EditDeleteTodosPage;
