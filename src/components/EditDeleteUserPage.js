@@ -35,10 +35,9 @@ const EditDeleteUserPage = () => {
                 headers: { "Content-Type": "application/json"},
                 body: JSON.stringify(user)
             });
-            navigate((`/user/${user_id}`));
+            navigate((`/user/${user_id}/todos`));
             
             if (response.ok) {
-                const data = await response.json();
                 setMessage("Your user was successfully updated.");
                 setStatus('success');
                 navigate(`/user/${user_id}`);
@@ -155,10 +154,14 @@ const EditDeleteUserPage = () => {
           <Button colorScheme="red" type="submit" onClick={handleDeleteClick}>
             Delete
           </Button>
+
+          <Button colorScheme="teal" type="submit" onClick={() => navigate(`/user/${user_id}/todos`)} >
+            Back to Todos
+          </Button>
+
         </VStack>
       </Flex>
     </form>
     );
 };
-// sometng
 export default EditDeleteUserPage;

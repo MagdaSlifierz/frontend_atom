@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { List, ListItem, Text , Flex} from '@chakra-ui/react';
+import { List, ListItem, Text , Flex, Button} from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+
 
 const ListOfUsersPage = () => {
+  const location = useLocation();
+  const user_id = location.state?.userId;
   const [users, setUsers] = useState([]);
+  
+  const navigate = useNavigate();
 
+  const navigateTo = (path) => {
+    navigate(path);
+ };
   useEffect(() => {
     // Function to fetch all users
     const fetchAllUsers = async () => {
@@ -44,6 +54,9 @@ const ListOfUsersPage = () => {
         </ListItem>
       ))}
     </List>
+    <Button colorScheme="teal" type="submit" onClick={() => navigateTo(`/user/${user_id}/todos`)} >
+            Back to Todos
+    </Button>
 
     </Flex>
   );

@@ -20,7 +20,7 @@ import {
 
 
 const TodoListPage = () => {
-    const { user_id , todo_id} = useParams();
+    const { user_id } = useParams();
     const [todos, setTodos] = useState([]);
     const [addElement, setAddElement] = useState('');
     const [user, setUser] = useState(null);
@@ -94,7 +94,48 @@ const TodoListPage = () => {
             console.error(err.message);
         }
     };
-   
+    const handleCheckboxChange = async (todoId, isChecked) => {
+        // Update local state
+        // const updatedTodos = todos.map(todo => {
+        //     if (todo.unique_id === todoId) {
+        //         return { ...todo, completed: isChecked };
+        //     }
+        //     return todo;
+        // });
+        // setTodos(updatedTodos);
+    
+        // // Prepare the data for the update
+        // const updatedData = { completed: isChecked };
+        const currentTodo = todos.find(todo => todo.unique_id === todoId);
+        if (!currentTodo) {
+            console.error("Todo item not found");
+            return;
+        }
+
+        const updatedData = {
+            title: currentTodo.title, // Include the current title
+            completed: isChecked
+    };
+    
+        // Send update request to the backend
+        try {
+            const response = await fetch(`http://localhost:8000/api/v1/users/${user_id}/todos/${todoId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedData),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            }
+    
+            // Optionally, fetch updated todos list or handle success response
+        } catch (err) {
+            console.error("Error updating todo:", err);
+        }
+    };
+    
+
 
     return (
         <VStack spacing={4} align="stretch" p={5}>
@@ -107,7 +148,7 @@ const TodoListPage = () => {
                     <MenuList>
                 {/* Use onClick to handle navigation */}
                         <MenuItem onClick={() => navigateTo(`/user/${user_id}`)}>Edit/Delete</MenuItem>
-                        <MenuItem onClick={() => navigateTo("/users")}>Other Users</MenuItem>
+                        <MenuItem onClick={() => navigateTo("/users", { state: { userId: user_id } })}>Other Users</MenuItem>
                     </MenuList>
                 </Menu>
             </Flex>
@@ -133,18 +174,19 @@ const TodoListPage = () => {
                 </Flex>
             </form>
 
-            <List spacing={3}>
-                {todos.map((todo, index) => (
-                    <ListItem key={index} d="flex" alignItems="center">
-                         <Text>{todo.title} 
-                         <Checkbox isChecked={todo.completed} mr={4} />
-                         <Button colorScheme="blue" type="submit" size='xs' mr={4} onClick={()=> navigateTo(`user/${user_id}/todos/${todo_id}`)}>Edit</Button>
-                        <Button colorScheme="red" type="submit" size='xs' mr={4} onClick={() => navigate(`user/${user_id}/todos/${todo_id}`)}>Delete</Button>
-                    
-                        </Text>
-                    </ListItem>
-                ))}
-            </List>
+            <List spacing={5}>
+    {todos.map((todo, index) => (
+        <ListItem key={index} d="flex" alignItems="center">
+             <Text>{todo.title} 
+             <Checkbox isChecked={todo.completed} onChange={(e) => handleCheckboxChange(todo.unique_id, e.target.checked)} mr={4} />
+             {/* Update the onClick to pass the correct todo.id */}
+             <Button colorScheme="blue" type="submit" size='xs' mr={4} onClick={() => navigateTo(`/user/${user_id}/todos/${todo.unique_id}`)}>Edit</Button>
+            <Button colorScheme="red" type="submit" size='xs' mr={4} onClick={() => navigateTo(`/user/${user_id}/todos/${todo.unique_id}`)}>Delete</Button>
+            
+            </Text>
+        </ListItem>
+    ))}
+</List>
         </VStack>
     );
 };
