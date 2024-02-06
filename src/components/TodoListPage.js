@@ -14,9 +14,16 @@ import {
     Checkbox,
     VStack,
     Text,
-  } from '@chakra-ui/react';
-  import { ChevronDownIcon } from '@chakra-ui/icons';
-  import { useNavigate } from 'react-router-dom';
+    IconButton,
+    Box,
+    Stack, 
+    HStack,
+    Spacer,
+} from '@chakra-ui/react';
+import { ChevronDownIcon } from '@chakra-ui/icons';
+import { useNavigate } from 'react-router-dom';
+import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
+
 
 
 const TodoListPage = () => {
@@ -25,12 +32,12 @@ const TodoListPage = () => {
     const [addElement, setAddElement] = useState('');
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
-    
-    
+
+
     const navigateTo = (path) => {
-       navigate(path);
+        navigate(path);
     };
-    
+
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -48,7 +55,7 @@ const TodoListPage = () => {
 
         fetchUser();
     }, [user_id]);
-    
+
     useEffect(() => {
         const fetchTodos = async () => {
             try {
@@ -70,10 +77,10 @@ const TodoListPage = () => {
 
     const onSubmitForm = async (e) => {
         e.preventDefault();
-    
+
         try {
-            const body = { 
-                title: addElement, 
+            const body = {
+                title: addElement,
                 completed: false, // Assuming a default value, adjust as needed
             };
             const response = await fetch(`http://localhost:8000/api/v1/users/${user_id}/todos`, {
@@ -103,7 +110,7 @@ const TodoListPage = () => {
         //     return todo;
         // });
         // setTodos(updatedTodos);
-    
+
         // // Prepare the data for the update
         // const updatedData = { completed: isChecked };
         const currentTodo = todos.find(todo => todo.unique_id === todoId);
@@ -115,8 +122,8 @@ const TodoListPage = () => {
         const updatedData = {
             title: currentTodo.title, // Include the current title
             completed: isChecked
-    };
-    
+        };
+
         // Send update request to the backend
         try {
             const response = await fetch(`http://localhost:8000/api/v1/users/${user_id}/todos/${todoId}`, {
@@ -124,70 +131,98 @@ const TodoListPage = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updatedData),
             });
-    
-            if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
+
+            if (response.ok) {
+                // Update the todos state to reflect the change
+                setTodos(todos.map(todo => {
+                    if (todo.unique_id === todoId) {
+                        return { ...todo, completed: isChecked }; // Update the completed status
+                    }
+                    return todo;
+                }));
+            } else {
+                throw new Error(`Failed to update todo item. Status: ${response.status}`);
             }
-    
-            // Optionally, fetch updated todos list or handle success response
         } catch (err) {
             console.error("Error updating todo:", err);
         }
     };
-    
+
 
 
     return (
-        <VStack spacing={4} align="stretch" p={5}>
-            <Flex justify="space-between" align="center">
-                <Heading size="lg" mb={6}>ToDos List</Heading>
-                <Menu>
-                    <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                        {user ? user.first_name : "User"}
-                    </MenuButton>
-                    <MenuList>
-                {/* Use onClick to handle navigation */}
-                        <MenuItem onClick={() => navigateTo(`/user/${user_id}`)}>Edit/Delete</MenuItem>
-                        <MenuItem onClick={() => navigateTo("/users", { state: { userId: user_id } })}>Other Users</MenuItem>
-                    </MenuList>
-                </Menu>
-            </Flex>
+        <Box backgroundColor="purple.300" w="100vw" h="100vh" p={8} >
+            <VStack spacing={4} align="stretch" >
+                <Flex justify="space-between" p={4}>
+                    <Spacer />
+                    <Menu >
+                        <MenuButton as={Button} rightIcon={<ChevronDownIcon />} colorScheme="green">
+                            {user ? user.first_name : "User"}
+                        </MenuButton>
+                        <MenuList>
+                            <MenuItem onClick={() => navigateTo(`/user/${user_id}`)}>Edit/Delete</MenuItem>
+                            <MenuItem onClick={() => navigateTo("/users", { state: { userId: user_id } })}>Other Users</MenuItem>
+                        </MenuList>
+                    </Menu>
 
-            <form onSubmit={onSubmitForm}>
-                 <Flex
-                 as="nav"
-                 align="center"
-                 justify="center"
-                 wrap="wrap"
-                 padding="0.5rem"
-                 bg="gray.400"
-                 height="25vh" // Add height to make it full screen
-               >
-                <VStack spacing={4} width="100%" maxWidth="400px">
-                    <Input
-                        value={addElement}
-                        onChange={(e) => setAddElement(e.target.value)}
-                        placeholder="Add a new todo item"
-                    />
-                    <Button colorScheme="blue" type="submit" ml={2}>Add Todo</Button>
-                </VStack>
                 </Flex>
-            </form>
+                <Stack
+                    flexDir="column"
+                    mb="2"
+                    justifyContent="center"
+                    alignItems="center"
+                >
+                  
+                  <Heading size="lg" mt={10} >TaskMaster: Your Ultimate To-Do List Organizer</Heading>
+                    <Box minW={{ base: "90%", md: "468px" }}>
+                        <Stack
+                            spacing={4}
+                            mt={40}
+                            p="1rem"
+                            backgroundColor="gray.100"
+                            boxShadow="md"
+                        >
 
-            <List spacing={5}>
-    {todos.map((todo, index) => (
-        <ListItem key={index} d="flex" alignItems="center">
-             <Text>{todo.title} 
-             <Checkbox isChecked={todo.completed} onChange={(e) => handleCheckboxChange(todo.unique_id, e.target.checked)} mr={4} />
-             {/* Update the onClick to pass the correct todo.id */}
-             <Button colorScheme="blue" type="submit" size='xs' mr={4} onClick={() => navigateTo(`/user/${user_id}/todos/${todo.unique_id}`)}>Edit</Button>
-            <Button colorScheme="red" type="submit" size='xs' mr={4} onClick={() => navigateTo(`/user/${user_id}/todos/${todo.unique_id}`)}>Delete</Button>
-            
-            </Text>
-        </ListItem>
-    ))}
-</List>
-        </VStack>
+                            <form onSubmit={onSubmitForm}>
+                                <VStack spacing={6}>
+                                    <Input
+                                        mt={8}
+                                        value={addElement}
+                                        onChange={(e) => setAddElement(e.target.value)}
+                                        placeholder="Add a new todo item"
+                                    />
+                                    <Button colorScheme="green" type="submit">Add</Button>
+                                </VStack>
+                            </form>
+
+                            <HStack spacing="24px" px="5%" w="100%">
+                      
+
+                            <List spacing={5} pt={5} mt={10} w="full">
+                                {todos.map((todo, index) => (
+                                    <ListItem key={index} d="flex" alignItems="center" justifyContent="space-between" w="full">
+                                          <Flex p={3} w="full" h="50px" justifyContent="space-between">
+                                          <Checkbox  mr={4}  size="lg"  borderColor="green.400" isChecked={todo.completed} onChange={(e) => handleCheckboxChange(todo.unique_id, e.target.checked)}/> 
+                                          <Text flex={6} isTruncated>{todo.title}</Text>
+                                          <Spacer />
+                                          
+                                        <IconButton icon={<EditIcon />} size='xs' colorScheme="green" mr={4} onClick={() => navigateTo(`/user/${user_id}/todos/${todo.unique_id}`)} />
+                                        <IconButton icon={<DeleteIcon />} size='xs' colorScheme="red" onClick={() => navigateTo(`/user/${user_id}/todos/${todo.unique_id}`)} />
+                                        
+                                        </Flex>
+                                    </ListItem>
+                                ))}
+                            </List>
+                      
+                            
+                            </HStack>
+                        </Stack>
+                    </Box>
+                </Stack>
+
+
+            </VStack>
+        </Box>
     );
 };
 

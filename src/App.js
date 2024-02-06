@@ -2,14 +2,15 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import UserCreatePage from './components/UserCreatePage';
 import TodoListPage from './components/TodoListPage';
 import EditDeleteUserPage from './components/EditDeleteUserPage';
-import { ChakraProvider } from "@chakra-ui/react";
+// import { ChakraProvider } from "@chakra-ui/react";
 import ListOfUsersPage from './components/ListOfUsersPage';
 import EditDeleteTodosPage from './components/EditDeleteTodosPage';
+// import theme from './theme';
 
 
 function App() {
   return (
-    <ChakraProvider>
+    // <ChakraProvider theme={theme}>
       <Router>
         <Routes>
           <Route path="/create-user" element={<UserCreatePage/>} />
@@ -19,7 +20,7 @@ function App() {
           <Route path="/user/:user_id/todos/:todo_id" element={<EditDeleteTodosPage /> }/>
         </Routes>
       </Router>
-  </ChakraProvider>
+  // </ChakraProvider >
   );
 }
 

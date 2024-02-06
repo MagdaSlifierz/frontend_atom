@@ -7,11 +7,16 @@ import {
     Input,
     FormControl,
     FormLabel,
-    VStack,
+    Stack,
     Alert,
-    AlertIcon,  Checkbox
+    AlertIcon,  
+    Checkbox,
+    Box,
+    HStack,
+    IconButton,
  
   } from '@chakra-ui/react';
+  import { EditIcon, DeleteIcon, ArrowBackIcon } from '@chakra-ui/icons';
   
 
 const EditDeleteTodosPage = () => {
@@ -23,43 +28,42 @@ const EditDeleteTodosPage = () => {
     const [status, setStatus] = useState('info'); // New state for status of the message (info, error, success)
 
     const navigate = useNavigate();
-  
+
     const handleChange = (e) => {
-        if (e.target.name === "completed"){
-            setTodos({ ...todos, completed: e.target.checked });
-        }
-        else {
-            setTodos({...todos, [e.target.name]: e.target.value });
-        }
-       
+      const { name, value } = e.target; // Correctly handle text changes
+      setTodos(prevTodos => ({ ...prevTodos, [name]: value }));
     };
-    
-    const editTodos = async (e) => {
+  
+    const handleCheckboxChange = (isChecked) => {
+      // Correctly update the 'completed' state without trying to send a request here
+      setTodos(prevTodos => ({ ...prevTodos, completed: isChecked }));
+  };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        try{
-            const response = await fetch(`http://localhost:8000/api/v1/users/${user_id}/todos/${todo_id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(todos)
-            });
-            
-            if (response.ok) {
-                setMessage("Your todo item was successfully updated.");
-                setStatus('success');
-                navigate(`/user/${user_id}/todos`);
-              } else {
-                console.error('Failed to update todo item');
-                setMessage("Failed to update todo item.");
-                setStatus('error');
-              }
-            
+        // Logic to update todo, similar to what was inside handleCheckboxChange
+        try {
+          const response = await fetch(`http://localhost:8000/api/v1/users/${user_id}/todos/${todo_id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(todos),
+          });
+    
+          if (response.ok) {
+            setMessage("Todo updated successfully.");
+            setStatus('success');
+            navigate(`/user/${user_id}/todos`);
+          } else {
+            throw new Error(`Failed to update todo item. Status: ${response.status}`);
+          }
+        } catch (err) {
+          console.error("Error updating todo:", err);
+          setMessage("An error occurred while updating the todo item.");
+          setStatus('error');
         }
-        catch(err) {
-            console.error(err.message)
-            setMessage("An error occurred. Please try again.");
-            setStatus('error');
-        }
-    };
+      };
+    
+
 
     const deleteTodos = async (e) => {
         try{
@@ -98,56 +102,64 @@ const EditDeleteTodosPage = () => {
 
     
     return (
-        <form onSubmit={editTodos}>
-    
-      <Flex
-        as="nav"
-        align="center"
-        justify="center" // Change to center
-        wrap="wrap"
-        padding="0.5rem"
-        bg="gray.400"
-        height="100vh" // Add height to make it full screen
+      <form onSubmit={handleSubmit}>
+  
+  <Flex
+        flexDirection="column"
+        width="100wh"
+        height="100vh"
+        backgroundColor="purple.300"
+        justifyContent="center"
+        alignItems="center"
       >
+           <Stack
+          flexDir="column"
+          mb="2"
+          justifyContent="center"
+          alignItems="center"
+        >
+            <Heading size="lg" mb={6}>Edit Todo Item</Heading>
+            <Box minW={{ base: "90%", md: "468px" }}>
+            {message && (
+              <Alert status={status}>
+                <AlertIcon />
+                {message}
+              </Alert>
+            )}
 
-        <VStack spacing={4} width="100%" maxWidth="400px"> 
-        <Heading size="lg" mb={6}> Edit Todo Item</Heading>
-        {message && ( 
-            <Alert status={status}>
-              <AlertIcon />
-              {message}
-            </Alert> )}
-
-          <FormControl id="title">
-            <FormLabel>Todo Name</FormLabel>
-            <Input
-              type="text"
-              name="title"
-              placeholder="Todo Name"
-              value={todos.title}
-              onChange={handleChange}
-            />
-          </FormControl>
-
-          <FormControl id="completed">
-            <FormLabel>Completed</FormLabel>
-            <Checkbox isChecked={todos.completed}
-              onChange={handleChange} mr={4} />
-          </FormControl>
-
-          {/* Other input fields */}
-
-          <Button colorScheme="blue" type="submit">
-            Edit
-          </Button>
-
-          <Button colorScheme="red" type="submit" onClick={handleDeleteClick}>
-            Delete
-          </Button>
-        </VStack>
-      </Flex>
-    </form>
+            <Stack
+              spacing={4}
+              p="1rem"
+              backgroundColor="gray.100"
+              boxShadow="md"
+            >
+               <HStack spacing="24px" px="5%" w="100%">
+  
+            <FormControl id="title">
+              <Input
+                type="text"
+                name="title"
+                placeholder="Todo Name"
+                value={todos.title}
+                onChange={handleChange}
+              />
+            </FormControl>
+  
+            <FormControl id="completed">
+              <Checkbox mr={4}  size="lg"  borderColor="green.400" isChecked={todos.completed} onChange={(e) => handleCheckboxChange(e.target.checked)}  />
+            </FormControl>
+  
+            <IconButton icon={<EditIcon />} size='sm' colorScheme="green" mr={4} onClick={handleChange}/>
+            <IconButton icon={<DeleteIcon />} size='sm' colorScheme="red" onClick={handleDeleteClick} />
+            <IconButton icon={<ArrowBackIcon />}  size='sm'colorScheme="blue" type="submit" onClick={() => navigate(`/user/${user_id}/todos`)} />
+           
+            </HStack>
+            </Stack>
+            </Box>
+          </Stack>
+        </Flex>
+      </form>
     );
-};
-
-export default EditDeleteTodosPage;
+  };
+  
+  export default EditDeleteTodosPage;

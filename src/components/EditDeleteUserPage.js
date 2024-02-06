@@ -9,7 +9,9 @@ import {
     FormLabel,
     VStack,
     Alert,
-    AlertIcon, 
+    AlertIcon,
+    Stack,
+    Box,
 
   } from '@chakra-ui/react';
   
@@ -96,17 +98,28 @@ const EditDeleteUserPage = () => {
         <form onSubmit={editUser}>
     
       <Flex
-        as="nav"
-        align="center"
-        justify="center" // Change to center
-        wrap="wrap"
-        padding="0.5rem"
-        bg="gray.400"
-        height="100vh" // Add height to make it full screen
+        flexDirection="column"
+        width="100wh"
+        height="100vh"
+        backgroundColor="purple.300"
+        justifyContent="center"
+        alignItems="center"
       >
 
-        <VStack spacing={4} width="100%" maxWidth="400px"> 
-        <Heading size="lg" mb={6}> Edit User for Todo's List</Heading>
+        <Stack
+          flexDir="column"
+          mb="2"
+          justifyContent="center"
+          alignItems="center"
+        > 
+        <Heading size="lg" mb={20}> Edit Your Profile </Heading>
+        <Box minW={{ base: "90%", md: "468px" }}>
+        <Stack
+              spacing={4}
+              p="1rem"
+              backgroundColor="gray.100"
+              boxShadow="md"
+            >
         {message && ( 
             <Alert status={status}>
               <AlertIcon />
@@ -155,11 +168,12 @@ const EditDeleteUserPage = () => {
             Delete
           </Button>
 
-          <Button colorScheme="teal" type="submit" onClick={() => navigate(`/user/${user_id}/todos`)} >
-            Back to Todos
+          <Button colorScheme="green" type="submit" onClick={() => navigate(`/user/${user_id}/todos`)} >
+            Back to your list!
           </Button>
-
-        </VStack>
+          </Stack>
+          </Box>
+        </Stack>
       </Flex>
     </form>
     );
