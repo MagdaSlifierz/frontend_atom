@@ -16,7 +16,7 @@ import {
     IconButton,
  
   } from '@chakra-ui/react';
-  import { EditIcon, DeleteIcon, ArrowBackIcon } from '@chakra-ui/icons';
+  import { CheckIcon, DeleteIcon, ArrowBackIcon } from '@chakra-ui/icons';
   
 
 const EditDeleteTodosPage = () => {
@@ -108,7 +108,7 @@ const EditDeleteTodosPage = () => {
         flexDirection="column"
         width="100wh"
         height="100vh"
-        backgroundColor="purple.300"
+        backgroundColor="gray.200"
         justifyContent="center"
         alignItems="center"
       >
@@ -129,14 +129,14 @@ const EditDeleteTodosPage = () => {
 
             <Stack
               spacing={4}
-              p="1rem"
+              p="2rem"
               backgroundColor="gray.100"
               boxShadow="md"
             >
-               <HStack spacing="24px" px="5%" w="100%">
+              <HStack spacing="18px" px="2%" w="100%">
   
             <FormControl id="title">
-              <Input
+              <Input  
                 type="text"
                 name="title"
                 placeholder="Todo Name"
@@ -149,7 +149,7 @@ const EditDeleteTodosPage = () => {
               <Checkbox mr={4}  size="lg"  borderColor="green.400" isChecked={todos.completed} onChange={(e) => handleCheckboxChange(e.target.checked)}  />
             </FormControl>
   
-            <IconButton icon={<EditIcon />} size='sm' colorScheme="green" mr={4} onClick={handleChange}/>
+            <IconButton icon={<CheckIcon  />} size='sm' colorScheme="green" type="submit" mr={4}/>
             <IconButton icon={<DeleteIcon />} size='sm' colorScheme="red" onClick={handleDeleteClick} />
             <IconButton icon={<ArrowBackIcon />}  size='sm'colorScheme="blue" type="submit" onClick={() => navigate(`/user/${user_id}/todos`)} />
            

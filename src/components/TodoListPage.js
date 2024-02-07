@@ -31,12 +31,19 @@ const TodoListPage = () => {
     const [todos, setTodos] = useState([]);
     const [addElement, setAddElement] = useState('');
     const [user, setUser] = useState(null);
-    const navigate = useNavigate();
+    const {todo_id} = useParams();
+    const [message, setMessage] = useState(null); // New state for the message
+    const [status, setStatus] = useState('info'); // New state for status of the message (info, error, success)
 
+    const navigate = useNavigate();
 
     const navigateTo = (path) => {
         navigate(path);
     };
+    const navigateToUsers = () => {
+        localStorage.setItem('userId', user_id); // Store user_id before navigating
+        navigate("/users");
+      };
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -102,17 +109,6 @@ const TodoListPage = () => {
         }
     };
     const handleCheckboxChange = async (todoId, isChecked) => {
-        // Update local state
-        // const updatedTodos = todos.map(todo => {
-        //     if (todo.unique_id === todoId) {
-        //         return { ...todo, completed: isChecked };
-        //     }
-        //     return todo;
-        // });
-        // setTodos(updatedTodos);
-
-        // // Prepare the data for the update
-        // const updatedData = { completed: isChecked };
         const currentTodo = todos.find(todo => todo.unique_id === todoId);
         if (!currentTodo) {
             console.error("Todo item not found");
@@ -120,11 +116,10 @@ const TodoListPage = () => {
         }
 
         const updatedData = {
-            title: currentTodo.title, // Include the current title
+            title: currentTodo.title, 
             completed: isChecked
         };
 
-        // Send update request to the backend
         try {
             const response = await fetch(`http://localhost:8000/api/v1/users/${user_id}/todos/${todoId}`, {
                 method: "PUT",
@@ -148,10 +143,47 @@ const TodoListPage = () => {
         }
     };
 
+    const deleteTodos = async (todoId) => {
+        try{
+            const response = await fetch(`http://localhost:8000/api/v1/users/${user_id}/todos/${todoId}`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json"},
+            });
+            
+            if (response.ok) {
+                // Filter out the deleted todo item from the todos array
+                setTodos(todos.filter(todo => todo.unique_id !== todoId));
+                setMessage("Your todo item was successfully deleted.");
+                setStatus('success');
+            } else {
+                console.error('Failed to delete todo item');
+                setMessage("Failed to delete todo item.");
+                setStatus('error');
+            }
+        }
+        catch(err) {
+            console.error(err.message)
+            setMessage("An error occurred. Please try again.");
+            setStatus('error');
+        }
+    };
+      
+
+
+    
+    const handleDeleteClick = (todoId) => (e) => {
+        e.preventDefault(); // Prevent form submission if it's within a form
+        const isConfirmed = window.confirm('Are you sure you want to delete this todo item?');
+        if (isConfirmed) {
+            deleteTodos(todoId);
+        }
+    };
+
+
 
 
     return (
-        <Box backgroundColor="purple.300" w="100vw" h="100vh" p={8} >
+        <Box backgroundColor="gray.200" w="100vw" h="100vh" p={8} >
             <VStack spacing={4} align="stretch" >
                 <Flex justify="space-between" p={4}>
                     <Spacer />
@@ -161,7 +193,8 @@ const TodoListPage = () => {
                         </MenuButton>
                         <MenuList>
                             <MenuItem onClick={() => navigateTo(`/user/${user_id}`)}>Edit/Delete</MenuItem>
-                            <MenuItem onClick={() => navigateTo("/users", { state: { userId: user_id } })}>Other Users</MenuItem>
+                            
+                            <MenuItem onClick={navigateToUsers} >Other Users</MenuItem>
                         </MenuList>
                     </Menu>
 
@@ -207,7 +240,7 @@ const TodoListPage = () => {
                                           <Spacer />
                                           
                                         <IconButton icon={<EditIcon />} size='xs' colorScheme="green" mr={4} onClick={() => navigateTo(`/user/${user_id}/todos/${todo.unique_id}`)} />
-                                        <IconButton icon={<DeleteIcon />} size='xs' colorScheme="red" onClick={() => navigateTo(`/user/${user_id}/todos/${todo.unique_id}`)} />
+                                        <IconButton icon={<DeleteIcon />} size='xs' colorScheme="red" onClick={handleDeleteClick(todo.unique_id)}  />
                                         
                                         </Flex>
                                     </ListItem>

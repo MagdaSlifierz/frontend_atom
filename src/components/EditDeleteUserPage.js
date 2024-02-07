@@ -101,7 +101,7 @@ const EditDeleteUserPage = () => {
         flexDirection="column"
         width="100wh"
         height="100vh"
-        backgroundColor="purple.300"
+        backgroundColor="gray.200"
         justifyContent="center"
         alignItems="center"
       >
@@ -169,7 +169,7 @@ const EditDeleteUserPage = () => {
           </Button>
 
           <Button colorScheme="green" type="submit" onClick={() => navigate(`/user/${user_id}/todos`)} >
-            Back to your list!
+            Return to Your Task List
           </Button>
           </Stack>
           </Box>

@@ -56,7 +56,7 @@ const UserCreatePage = () => {
         flexDirection="column"
         width="100wh"
         height="100vh"
-        backgroundColor="purple.300"
+        backgroundColor="gray.200"
         justifyContent="center"
         alignItems="center"
       >
